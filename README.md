@@ -1,19 +1,21 @@
 ## Background
 There are scenarios where you want to automate deployment or operations on a subscription using a non-interactive service or background job, e.g. to create or manage storage accounts or other Azure resources, or add or remove role assignments. 
 
-The Azure portal has an **Automation scripts** tab for every resource, that shows how to deploy that resource using an ARM template using PowerShell, Azure CLI, C# etc. 
+The Azure portal has an **Automation scripts** tab for every resource, that shows how to deploy that resource using an ARM template using PowerShell, Azure CLI, .NET etc. 
 
-The C# code in those scripts uses an Azure AD Service Principal. There are two issues with it:
-1. The Azure AD application credentials are hard coded in the source code. Developers tend to push the code to source repositors as-is, which leads to credentials in source. 
-2. The Azure AD application credentials expire, and this leads to downtime. 
+The .NET code there uses an Azure AD Service Principal. There are two issues with it:
+1. The Azure AD application credentials are hard coded in the source code. Developers tend to push the code to source repositories as-is, which leads to credentials in source. 
+2. The Azure AD application credentials expire, and so need to be renewed, else can lead to application downtime.
 
 With Managed Service Identity (MSI), both these problems are solved. This sample is a slight modification of the C# code available in the **Automation scripts** on the portal. 
 It uses MSI, instead of an explicitly created service principal, to deploy resources, so you do not need to create or renew app credentials. 
 
+* Here's another sample that shows how to fetch a secret from Azure Key Vault at run-time from an App Service with a Managed Service Identity (MSI) - [https://github.com/Azure-Samples/app-service-msi-keyvault-dotnet/](https://github.com/Azure-Samples/app-service-msi-keyvault-dotnet/)
+
 ## Prerequisites
 To run and deploy this sample, you need the following:
 1. Azure subscription to create an Azure VM with MSI. 
-2. [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) (To run the application on your local development machine)
+2. [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) to run the application on your local development machine.
 
 ## Step 1: Create an Azure VM with a Managed Service Identity (MSI) 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fazsamples.blob.core.windows.net%2Fvmtemplate%2Fazuredeploy.json" target="_blank">
@@ -23,7 +25,7 @@ To run and deploy this sample, you need the following:
 Use the "Deploy to Azure" button to deploy an ARM template to create an Azure VM with a Managed Service Identity. When you create a VM with MSI, an Azure AD service principal with that name is created, and can be used to grant access to resources. 
 
 ## Step 2: Grant the Managed Service Identity "contributor" access to your subscription
-Using the Azure Portal, grant the Managed Service Identity contributor access to the subscription. You can do this using the **Acess Control (IAM)** tab in the subscription. 
+Using the Azure Portal, grant the Managed Service Identity contributor access to the subscription. You can do this using the **Access Control (IAM)** tab in the subscription. 
 
 Click on **Add**, set the role as **Contributor**, and search for the VM name you just created. 
 
@@ -31,7 +33,7 @@ Click on **Add**, set the role as **Contributor**, and search for the VM name yo
 Clone the repo to your development machine. 
 
 The relevant Nuget packages are:
-1. Microsoft.Azure.Services.AppAuthentication - this is in Preview and makes it easy to fetch access tokens for service to Azure service authentication scenarios. 
+1. Microsoft.Azure.Services.AppAuthentication (preview) - makes it easy to fetch access tokens for service to Azure service authentication scenarios. 
 2. Microsoft.Azure.Management.ResourceManager - contains methods for interacting with Azure Resource Manager. 
 
 The relevant code is in DeploymentHelper.cs file. The AzureServiceTokenProvider class (which is part of Microsoft.Azure.Services.AppAuthentication) tries the following methods to get an access token, to call ARM:-
@@ -44,13 +46,8 @@ AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvi
 
 var serviceCreds = new TokenCredentials(await azureServiceTokenProvider.GetAccessTokenAsync("https://management.azure.com/").ConfigureAwait(false));
 
-// Read the template and parameter file contents
-JObject templateFileContents = GetJsonFileContents(pathToTemplateFile);
-JObject parameterFileContents = GetJsonFileContents(pathToParameterFile);
-
 // Create the resource manager client
 var resourceManagementClient = new ResourceManagementClient(serviceCreds);
-
 ```
 
 ## Step 4: Change the Subscription Id, resource group name, and other parameters
@@ -100,7 +97,11 @@ The principal used does not have access to the subscription. Grant the MSI contr
 
 ## Running the application using a service principal in local development environment
 
-Note: It is recommended to use your developer context for local development, since you do not need to create or share a service principal for that. If that does not work for you, you can use a service principal, but do not check in the certificate or secret in source repos, and share them securely. 
+```
+Note: It is recommended to use your developer context for local development, since you do not need to create or share a service principal for that. 
+
+If that does not work for you, you can use a service principal, but do not check in the certificate or secret in source repos, and share them securely. 
+```
 
 To run the application using a service principal in the local development environment, follow these steps
 
