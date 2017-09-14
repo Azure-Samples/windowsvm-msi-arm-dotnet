@@ -10,7 +10,8 @@ The .NET code there uses an Azure AD Service Principal. There are two issues wit
 With Managed Service Identity (MSI), both these problems are solved. This sample is a slight modification of the C# code available in the **Automation scripts** on the portal. 
 It uses MSI, instead of an explicitly created service principal, to deploy resources, so you do not need to create or renew app credentials. 
 
-* Here's another sample that shows how to fetch a secret from Azure Key Vault at run-time from an App Service with a Managed Service Identity (MSI) - [https://github.com/Azure-Samples/app-service-msi-keyvault-dotnet/](https://github.com/Azure-Samples/app-service-msi-keyvault-dotnet/)
+>Here's another sample that shows how to fetch a secret from Azure Key Vault at run-time from an App Service with a Managed Service Identity (MSI) - [https://github.com/Azure-Samples/app-service-msi-keyvault-dotnet/](https://github.com/Azure-Samples/app-service-msi-keyvault-dotnet/)
+
 
 ## Prerequisites
 To run and deploy this sample, you need the following:
@@ -22,7 +23,7 @@ To run and deploy this sample, you need the following:
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-Use the "Deploy to Azure" button to deploy an ARM template to create an Azure VM with a Managed Service Identity. When you create a VM with MSI, an Azure AD service principal with that name is created, and can be used to grant access to resources. 
+Use the "Deploy to Azure" button to deploy an ARM template to create an Azure VM with a Managed Service Identity. When you create a VM with MSI, an Azure AD service principal with the same name is created, and can be used to grant access to resources. 
 
 ## Step 2: Grant the Managed Service Identity "contributor" access to your subscription
 Using the Azure Portal, grant the Managed Service Identity contributor access to the subscription. You can do this using the **Access Control (IAM)** tab in the subscription. 
@@ -77,7 +78,7 @@ In the Azure Portal, browse to the Azure VM you created, and click on "Connect".
 Run **DeployArmTemplate.exe**. It will run the same code that was run on the local development machine, but will use the Managed Service Identity, instead of your developer context, to create/ update the resource. 
 
 ## Summary
-You were able to write an application that can deploy ARM resources without explicitly creating a service principal credential. 
+You were successfully able to write an application that can deploy ARM resources without explicitly creating a service principal credential. 
 
 ## Troubleshooting
 
@@ -97,11 +98,7 @@ The principal used does not have access to the subscription. Grant the MSI contr
 
 ## Running the application using a service principal in local development environment
 
-```
-Note: It is recommended to use your developer context for local development, since you do not need to create or share a service principal for that. 
-
-If that does not work for you, you can use a service principal, but do not check in the certificate or secret in source repos, and share them securely. 
-```
+>Note: It is recommended to use your developer context for local development, since you do not need to create or share a service principal for that. If that does not work for you, you can use a service principal, but do not check in the certificate or secret in source repos, and share them securely.
 
 To run the application using a service principal in the local development environment, follow these steps
 
