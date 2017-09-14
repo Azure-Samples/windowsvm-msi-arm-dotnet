@@ -19,7 +19,7 @@ To run and deploy this sample, you need the following:
 2. [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) to run the application on your local development machine.
 
 ## Step 1: Create an Azure VM with a Managed Service Identity (MSI) 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fazsamples.blob.core.windows.net%2Fvmtemplate%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fwindowsvm-msi-arm-dotnet%2Fmaster%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
@@ -47,7 +47,6 @@ AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvi
 
 var serviceCreds = new TokenCredentials(await azureServiceTokenProvider.GetAccessTokenAsync("https://management.azure.com/").ConfigureAwait(false));
 
-// Create the resource manager client
 var resourceManagementClient = new ResourceManagementClient(serviceCreds);
 ```
 
