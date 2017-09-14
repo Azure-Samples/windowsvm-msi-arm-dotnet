@@ -181,24 +181,24 @@
         }
         }
     },
-    {
+      {
         "type": "Microsoft.Compute/virtualMachines/extensions",
         "name": "[concat(variables('vmName'),'/ManagedIdentityExtensionForWindows')]",
-        "apiVersion": "2015-05-01-preview",
+        "apiVersion": "2016-03-30",
         "location": "[resourceGroup().location]",
         "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+          "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
         ],
         "properties": {
-            "publisher": "Microsoft.ManagedIdentity.Edp",
-            "type": "ManagedIdentityExtensionForWindows",
-            "typeHandlerVersion": "1.0",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-                "port": 50342
-            }
+          "publisher": "Microsoft.ManagedIdentity",
+          "type": "ManagedIdentityExtensionForWindows",
+          "typeHandlerVersion": "1.0",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "port": 50342
+          }
         }
-    }
+      }
     ],
     "outputs": {
     "hostname": {

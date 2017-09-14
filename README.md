@@ -7,7 +7,7 @@ The .NET code there uses an Azure AD Service Principal. There are two issues wit
 1. The Azure AD application credentials are hard coded in the source code. Developers tend to push the code to source repositories as-is, which leads to credentials in source. 
 2. The Azure AD application credentials expire, and so need to be renewed, else can lead to application downtime.
 
-With Managed Service Identity (MSI), both these problems are solved. This sample is a slight modification of the C# code available in the **Automation scripts** on the portal. 
+With [Managed Service Identity (MSI)](https://docs.microsoft.com/en-us/azure/active-directory/msi-overview), both these problems are solved. This sample is a slight modification of the C# code available in the **Automation scripts** on the portal. 
 It uses MSI, instead of an explicitly created service principal, to deploy resources, so you do not need to create or renew app credentials. 
 
 >Here's another sample that shows how to fetch a secret from Azure Key Vault at run-time from an App Service with a Managed Service Identity (MSI) - [https://github.com/Azure-Samples/app-service-msi-keyvault-dotnet/](https://github.com/Azure-Samples/app-service-msi-keyvault-dotnet/)
