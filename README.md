@@ -12,6 +12,8 @@ It uses MSI, instead of an explicitly created service principal, to deploy resou
 
 >Here's another sample that shows how to fetch a secret from Azure Key Vault at run-time from an App Service with a Managed Service Identity (MSI) - [https://github.com/Azure-Samples/app-service-msi-keyvault-dotnet/](https://github.com/Azure-Samples/app-service-msi-keyvault-dotnet/)
 
+>Here's another .NET Core sample that shows how to programmatically call Azure Services from an Azure Linux VM with a Managed Service Identity (MSI). - [https://github.com/Azure-Samples/linuxvm-msi-keyvault-arm-dotnet](https://github.com/Azure-Samples/linuxvm-msi-keyvault-arm-dotnet)
+
 
 ## Prerequisites
 To run and deploy this sample, you need the following:
@@ -34,7 +36,7 @@ Click on **Add**, set the role as **Contributor**, and search for the VM name yo
 Clone the repo to your development machine. 
 
 The relevant Nuget packages are:
-1. Microsoft.Azure.Services.AppAuthentication (preview) - makes it easy to fetch access tokens for service to Azure service authentication scenarios. 
+1. Microsoft.Azure.Services.AppAuthentication - makes it easy to fetch access tokens for service to Azure service authentication scenarios. 
 2. Microsoft.Azure.Management.ResourceManager - contains methods for interacting with Azure Resource Manager. 
 
 The relevant code is in DeploymentHelper.cs file. The AzureServiceTokenProvider class (which is part of Microsoft.Azure.Services.AppAuthentication) tries the following methods to get an access token, to call ARM:-
@@ -50,9 +52,9 @@ var serviceCreds = new TokenCredentials(await azureServiceTokenProvider.GetAcces
 var resourceManagementClient = new ResourceManagementClient(serviceCreds);
 ```
 
-## Step 4: Change the Subscription Id, resource group name, and other parameters
-1. In the DeploymentHelper.cs file, change the **subscriptionId** to your own subscription Id, and make changes to resource group name, location etc. as required. 
-2. In deploymentParameters.json, change the storage account name. This is important, since the storage account name must be unique, and so the sample may fail later, if the name is already taken.
+## Step 4: Change the subscription ID, storage account name, and other parameters
+1. In the DeploymentHelper.cs file, change the **subscriptionId** to your own subscription ID, and optionally make changes to resource group name, location, etc. as required. 
+2. In deploymentParameters.json, change the **storageAccountName**. This is important since the storage account name must be unique, and so the sample may fail later if the name is already taken.
 
 ## Step 5: Run the application on your local development machine
 Since this is on the development machine, AzureServiceTokenProvider will use the developer's security context to get a token to authenticate to ARM. This removes the need to create a service principal, and share it with the development team. It also prevents credentials from being checked in to source code. 
