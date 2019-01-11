@@ -115,6 +115,7 @@ Service principal using a password:
 3. Run the application in your local development environment. No code change is required. AzureServiceTokenProvider will use this environment variable and use the service principal to authenticate to Azure AD. 
 
 ## Running the application using a user-assigned managed identity in Azure VM
+>Note: This functionality requires AppAuthentication version 1.2.0-preview or greater and currently only supports Azure VMs (and not App Services)
 
 To run the application using a user-assigned managed identity while deployed to an Azure VM, follow these steps:
 
