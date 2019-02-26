@@ -114,24 +114,13 @@ Service principal using a password:
 2. Set an environment variable named **AzureServicesAuthConnectionString** to **RunAs=App;AppId=_AppId_;TenantId=_TenantId_;AppKey=_Secret_**. You need to replace AppId, TenantId, and Secret with actual values from step #1. 
 3. Run the application in your local development environment. No code change is required. AzureServiceTokenProvider will use this environment variable and use the service principal to authenticate to Azure AD. 
 
-<<<<<<< HEAD
 ## Running the application using a user-assigned managed identity
 >Note: This functionality requires AppAuthentication version 1.2.0-preview or greater
 
 To run the application using a user-assigned managed identity, follow these steps:
-=======
-## Running the application using a user-assigned managed identity in Azure VM
-
-To run the application using a user-assigned managed identity while deployed to an Azure VM, follow these steps:
->>>>>>> 8d2fe2b... Adding instructions for using a user-assigned managed identity
 
 1. Create a user-assigned managed identity. Follow steps [here](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal#create-a-user-assigned-managed-identity) to create a user-assigned managed identity.
 2. After creating the managed identity, record the Client ID of the newly created managed identity.
 3. Assign the user-assigned managed identity to your Azure VM. Follow steps [here](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/qs-configure-portal-windows-vm#user-assigned-managed-identity) to assign the identity to the VM.
-<<<<<<< HEAD
 4. While in your Azure VM, set an environment variable named **AzureServicesAuthConnectionString** to **RunAs=App;AppId=_AppId_**. You need to replace AppId with the value of the Client ID you recorded in step #2.
 5. Run the application in your Azure VM. No code change is required. AzureServiceTokenProvider will use this environment variable and use the user-assigned managed identity to authenticate to Azure AD.
-=======
-4. While in your Azure VM, set an environment variable named **AzureServicesAuthConnectionString** to **RunAs=App;AppId=_AppId_;TenantId=_TenantId_**. You need to replace AppId with the value of the Client ID you recorded in step #2 and TenantId with your Tenant ID. Follow steps [here](https://docs.microsoft.com/en-us/onedrive/find-your-office-365-tenant-id) to find your Tenant ID.
-5. Run the application in your Azure VM. No code change is required. AzureServiceTokenProvider will use this environment variable and use the user-assigned managed identity to authenticate to Azure AD. 
->>>>>>> 8d2fe2b... Adding instructions for using a user-assigned managed identity
