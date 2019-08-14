@@ -83,19 +83,7 @@ You were successfully able to write an application that can deploy ARM resources
 
 ## Troubleshooting
 
-### Common issues during local development:
-
-1. Azure CLI is not installed, or you are not logged in, or you do not have the latest version. 
-Run **az account get-access-token** to see if Azure CLI shows a token for you. If it says no such program found, please install Azure CLI 2.0. If you have installed it, you may be prompted to login. 
-
-2. AzureServiceTokenProvider cannot find the path for Azure CLI.
-AzureServiceTokenProvider finds Azure CLI at its default install locations. If it cannot find Azure CLI, please set environment variable **AzureCLIPath** to the Azure CLI installation folder. AzureServiceTokenProvider will add the environment variable to the Path environment variable.
-
-### Common issues across environments:
-
-1. Access denied (Forbidden)
-
-The principal used does not have access to the subscription. Grant the MSI contributor access to the subscription.
+Please see the [troubleshooting section](https://docs.microsoft.com/en-us/azure/key-vault/service-to-service-authentication#appauthentication-troubleshooting) of the AppAuthentication library documentation for troubleshooting of common issues.
 
 ## Running the application using a service principal in local development environment
 
