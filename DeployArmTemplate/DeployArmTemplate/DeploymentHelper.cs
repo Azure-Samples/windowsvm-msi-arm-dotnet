@@ -1,12 +1,14 @@
-﻿using Microsoft.Azure.Management.ResourceManager;
-using Microsoft.Azure.Management.ResourceManager.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Rest;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using Azure.Identity;
+using Azure.ResourceManager;
+using Azure.ResourceManager.Resources;
+using Azure.ResourceManager.Resources.Models;
+using JsonObject = System.Collections.Generic.Dictionary<string, object>;
+using System.Collections.Generic;
 
 namespace PortalGenerated
 {
@@ -16,7 +18,7 @@ namespace PortalGenerated
     /// </summary>
     class DeploymentHelper
     {
-        string subscriptionId = "<<subscriptionid>>";
+        string subscriptionId = "faa080af-c1d8-40ad-9cce-e1a450ca5b57";
 
         // ClientId and ClientSecret are no longer needed!
         // string clientId = "your-service-principal-clientId";
@@ -24,64 +26,35 @@ namespace PortalGenerated
 
         string resourceGroupName = "myrg";
         string deploymentName = "mydeployment";
-        string resourceGroupLocation = "southcentralus"; 
-        string pathToTemplateFile = "deploymentTemplate.json";
-        string pathToParameterFile = "deploymentParameters.json";
+        Location location = Location.SouthCentralUS;
 
         public async Task Run()
         {
-            // Try to obtain the service credentials
-            AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
-
-            var serviceCreds = new TokenCredentials(await azureServiceTokenProvider.GetAccessTokenAsync("https://management.azure.com/").ConfigureAwait(false));
-
-            // Read the template and parameter file contents
-            JObject templateFileContents = GetJsonFileContents(pathToTemplateFile);
-            JObject parameterFileContents = GetJsonFileContents(pathToParameterFile);
-
             // Create the resource manager client
-            var resourceManagementClient = new ResourceManagementClient(serviceCreds);
-            resourceManagementClient.SubscriptionId = subscriptionId;
-
+            var armClient = new ArmClient(subscriptionId, new DefaultAzureCredential());
+            Subscription subscription = armClient.GetDefaultSubscription();
+            ResourceGroupCollection rgCollection = subscription.GetResourceGroups();
             // Create or check that resource group exists
-            EnsureResourceGroupExists(resourceManagementClient, resourceGroupName, resourceGroupLocation);
+            EnsureResourceGroupExists(rgCollection, resourceGroupName, location);
 
+            ResourceGroup resourceGroup = rgCollection.Get(resourceGroupName).Value;
+            DeploymentCollection deploymentCollection = resourceGroup.GetDeployments();
             // Start a deployment
-            DeployTemplate(resourceManagementClient, resourceGroupName, deploymentName, templateFileContents, parameterFileContents);
-        }
-
-        /// <summary>
-        /// Reads a JSON file from the specified path
-        /// </summary>
-        /// <param name="pathToJson">The full path to the JSON file</param>
-        /// <returns>The JSON file contents</returns>
-        private JObject GetJsonFileContents(string pathToJson)
-        {
-            JObject templatefileContent = new JObject();
-            using (StreamReader file = File.OpenText(pathToJson))
-            {
-                using (JsonTextReader reader = new JsonTextReader(file))
-                {
-                    templatefileContent = (JObject)JToken.ReadFrom(reader);
-                    return templatefileContent;
-                }
-            }
+            DeployTemplate(deploymentCollection, resourceGroupName, deploymentName);
         }
 
         /// <summary>
         /// Ensures that a resource group with the specified name exists. If it does not, will attempt to create one.
         /// </summary>
-        /// <param name="resourceManagementClient">The resource manager client.</param>
+        /// <param name="rgCollection">A class representing collection of ResourceGroupCollection.</param>
         /// <param name="resourceGroupName">The name of the resource group.</param>
-        /// <param name="resourceGroupLocation">The resource group location. Required when creating a new resource group.</param>
-        private static void EnsureResourceGroupExists(ResourceManagementClient resourceManagementClient, string resourceGroupName, string resourceGroupLocation)
+        /// <param name="location">The resource group location. Required when creating a new resource group.</param>
+        private static void EnsureResourceGroupExists(ResourceGroupCollection rgCollection, string resourceGroupName, string location)
         {
-            if (resourceManagementClient.ResourceGroups.CheckExistence(resourceGroupName) != true)
+            if (rgCollection.CheckIfExists(resourceGroupName) != true)
             {
-                Console.WriteLine(string.Format("Creating resource group '{0}' in location '{1}'", resourceGroupName, resourceGroupLocation));
-                var resourceGroup = new ResourceGroup();
-                resourceGroup.Location = resourceGroupLocation;
-                resourceManagementClient.ResourceGroups.CreateOrUpdate(resourceGroupName, resourceGroup);
+                Console.WriteLine(string.Format("Creating resource group '{0}' in location '{1}'", resourceGroupName, location));
+                ResourceGroupCreateOrUpdateOperation lro =  rgCollection.CreateOrUpdate(resourceGroupName, new ResourceGroupData(location));
             }
             else
             {
@@ -92,25 +65,31 @@ namespace PortalGenerated
         /// <summary>
         /// Starts a template deployment.
         /// </summary>
-        /// <param name="resourceManagementClient">The resource manager client.</param>
+        /// <param name="deploymentCollection">The collection of deployment.</param>
         /// <param name="resourceGroupName">The name of the resource group.</param>
         /// <param name="deploymentName">The name of the deployment.</param>
-        /// <param name="templateFileContents">The template file contents.</param>
-        /// <param name="parameterFileContents">The parameter file contents.</param>
-        private static void DeployTemplate(ResourceManagementClient resourceManagementClient, string resourceGroupName, string deploymentName, JObject templateFileContents, JObject parameterFileContents)
+        private static void DeployTemplate(DeploymentCollection deploymentCollection, string resourceGroupName, string deploymentName)
         {
             Console.WriteLine(string.Format("Starting template deployment '{0}' in resource group '{1}'", deploymentName, resourceGroupName));
-            var deployment = new Deployment();
-
-            deployment.Properties = new DeploymentProperties
+            var input = new DeploymentInput(new DeploymentProperties(DeploymentMode.Incremental)
             {
-                Mode = DeploymentMode.Incremental,
-                Template = templateFileContents,
-                Parameters = parameterFileContents["parameters"].ToObject<JObject>()
-            };
+                TemplateLink = new TemplateLink()
+                {
+                    Uri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.storage/storage-account-create/azuredeploy.json"
+                },
+                Parameters = new JsonObject()
+                {
+                    {"storageAccountType", new JsonObject()
+                        {
+                            {"value", "Standard_GRS" }
+                        }
+                    }
+                }
+            });
 
-            var deploymentResult = resourceManagementClient.Deployments.CreateOrUpdate(resourceGroupName, deploymentName, deployment);
-            Console.WriteLine(string.Format("Deployment status: {0}", deploymentResult.Properties.ProvisioningState));
+            DeploymentCreateOrUpdateAtScopeOperation deploymentResult = deploymentCollection.CreateOrUpdate(deploymentName, input);
+
+            Console.WriteLine(string.Format("Deployment status: {0}", deploymentResult.Value.Data.Properties.ProvisioningState));
         }
     }
 }
