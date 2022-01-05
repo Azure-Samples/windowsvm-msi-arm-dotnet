@@ -18,7 +18,7 @@ namespace PortalGenerated
     /// </summary>
     class DeploymentHelper
     {
-        string subscriptionId = "faa080af-c1d8-40ad-9cce-e1a450ca5b57";
+        string subscriptionId = "<<subscriptionid>>";
 
         // ClientId and ClientSecret are no longer needed!
         // string clientId = "your-service-principal-clientId";
